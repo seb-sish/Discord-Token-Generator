@@ -30,7 +30,8 @@ def gen_third():
     return ''.join(choices(string.ascii_letters + string.digits + "-_", k=27))
 
 def notify(title, message):
-	notification.notify(title = title, message = message,  app_icon="./nitro.ico")
+    try: notification.notify(title = title, message = message,  app_icon="./nitro.ico")
+    except: pass
 
 valid_tokens_count = 0
 url = "https://discordapp.com/api/v6/users/@me/library"
